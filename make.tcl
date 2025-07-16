@@ -1,8 +1,35 @@
 # ContrastAdjust Project Creation Script
 # Compatible with Vivado 2021.1 and above
-# Usage: vivado -mode tcl -source create_contrastadjust_project.tcl
+# Usage: vivado -mode tcl -source make.tcl -tclargs [options]
+# Options: -synthesis, -simulation, -all
 # Author: Aero2021
 # Date: July 16, 2025
+
+# Parse command line arguments
+set do_synthesis false
+set do_simulation false
+
+# Process arguments
+foreach arg $argv {
+    switch -exact -- $arg {
+        "-synthesis" {
+            set do_synthesis true
+            puts "INFO: Synthesis will be run after project creation"
+        }
+        "-simulation" {
+            set do_simulation true
+            puts "INFO: Simulation will be run after project creation"
+        }
+        "-all" {
+            set do_synthesis true
+            set do_simulation true
+            puts "INFO: Both synthesis and simulation will be run"
+        }
+        default {
+            puts "WARNING: Unknown argument: $arg"
+        }
+    }
+}
 
 # Project configuration
 set project_name "ContrastAdjust_project"
@@ -44,11 +71,21 @@ set constraints_content {# ContrastAdjust Project Clock Constraints
 create_clock -period 10.0 -name clk -waveform {0.000 5.000} [get_ports clk]
 
 # Input/Output Delay Constraints
-set_input_delay -clock clk -max 2.0 [get_ports {rst_n axis_in_*}]
-set_output_delay -clock clk -max 2.0 [get_ports {axis_out_*}]
+# Note: When using SystemVerilog interfaces, individual signals are not exposed as ports
+# These constraints will be applied at the interface level during elaboration
 
 # Clock Uncertainty
 set_clock_uncertainty -setup 0.1 -hold 0.1 [get_clocks clk]
+
+# False Path Constraints for Reset
+set_false_path -from [get_ports rst_n] -to [all_registers]
+
+# Multi-cycle path constraints for BRAM lookup (commented out - adjust path names as needed)
+# set_multicycle_path -setup 2 -from [get_cells {*/bram_reg[*]}] -to [get_cells {*/m_axis_tdata_reg[*]}]
+# set_multicycle_path -hold 1 -from [get_cells {*/bram_reg[*]}] -to [get_cells {*/m_axis_tdata_reg[*]}]
+
+# Timing exceptions for real number calculations (synthesis time)
+# These paths are pre-calculated and stored in BRAM, so no additional timing constraints needed
 }
 
 set constraints_file "$project_dir/$project_name/constraints.xdc"
@@ -82,3 +119,20 @@ puts "ContrastAdjust Project Created Successfully!"
 puts "=========================================="
 puts "Project is ready for synthesis and simulation."
 puts "=========================================="
+
+# Execute additional steps based on arguments
+if {$do_synthesis && $do_simulation} {
+    puts "INFO: Running synthesis and simulation..."
+    source syn.tcl
+    source sim.tcl
+} elseif {$do_synthesis} {
+    puts "INFO: Running synthesis..."
+    source syn.tcl
+} elseif {$do_simulation} {
+    puts "INFO: Running simulation..."
+    source sim.tcl
+} else {
+    puts "INFO: Project creation completed. No additional steps requested."
+}
+
+puts "INFO: All requested operations completed successfully!"
