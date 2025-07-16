@@ -15,13 +15,17 @@ module Contrast #(
     localparam int BRAM_SIZE = 2**DATA_WIDTH;
     // real E = 5;
     // real thres = 127;
-    real var;
+    real temp_var;
     logic [DATA_WIDTH-1:0] bram [0:BRAM_SIZE-1];
 
     initial begin   
         for (int input_pixel = 0; input_pixel < BRAM_SIZE; input_pixel++) begin
-            var = 1/((1+thres/input_pixel)**E);
-            bram[input_pixel] = $rtoi(var * 255);
+            if (input_pixel == 0) begin
+                bram[input_pixel] = 255; // 避免除零错误
+            end else begin
+                temp_var = 255.0/((1.0+THRESHOLD/real'(input_pixel))**E);
+                bram[input_pixel] = int'(temp_var);
+            end
         end
     end
 

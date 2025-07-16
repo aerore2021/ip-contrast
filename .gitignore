@@ -1,10 +1,10 @@
 *.log
 *.jou
 .Xil
-MeanFilter_project.xpr
-MeanFilter_project
+*_project.xpr
+*_project
 ip
 constraints
-MeanFilter_project.srcs
-MeanFilter_project.sim
+*_project.srcs
+*_project.sim
 out.txt
