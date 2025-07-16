@@ -28,7 +28,7 @@ module Contrast #(
             end
         end
     end
-
+    assign s_axis.tready = m_axis.tready; 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             m_axis.tvalid <= 0;
@@ -41,7 +41,7 @@ module Contrast #(
             m_axis.tvalid <= 1;
             m_axis.tlast <= s_axis.tlast;
             m_axis.tuser <= s_axis.tuser;
-
+            
             if (s_axis.tlast) begin
                 m_axis.tvalid <= 0; // Reset valid after last
             end

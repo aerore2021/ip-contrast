@@ -1,10 +1,7 @@
 *.log
 *.jou
 .Xil
-*_project.xpr
 *_project
 ip
 constraints
-*_project.srcs
-*_project.sim
-out.txt
+
