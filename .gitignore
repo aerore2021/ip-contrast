@@ -1,0 +1,10 @@
+*.log
+*.jou
+.Xil
+MeanFilter_project.xpr
+MeanFilter_project
+ip
+constraints
+MeanFilter_project.srcs
+MeanFilter_project.sim
+out.txt
