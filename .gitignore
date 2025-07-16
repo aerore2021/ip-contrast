@@ -1,0 +1,7 @@
+*.log
+*.jou
+.Xil
+*_project
+ip
+constraints
+
